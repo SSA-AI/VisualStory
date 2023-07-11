@@ -11,6 +11,7 @@ import ssl
 
 def main():
 
+
     # Download set if required
     data_dir = "/Users/shahafasban/PycharmProjects/Data"
     ssl._create_default_https_context = ssl._create_unverified_context
