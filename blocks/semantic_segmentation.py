@@ -1,6 +1,5 @@
 import torch
 from torchvision.models.segmentation import fcn_resnet50
-from torchvision.transforms import functional as F
 
 
 class SemanticSegmentation:
@@ -22,4 +21,7 @@ class SemanticSegmentation:
             images = images.to(self.device)
             output = self.model(images)['out']  # Shape: [B, 21, H, W]
         output_predictions = output.argmax(1)  # Shape: [B, H, W]
-        return output_predictions.cpu()
+        output_predictions = output_predictions.unsqueeze(1)  # Shape: [B, 1, H, W]
+        # Convert single-channel image to 3-channel image
+        output_predictions = output_predictions.repeat(1, 3, 1, 1)  # Shape: [B, 3, H, W]
+        return output_predictions.float().cpu()  # Convert to float before returning

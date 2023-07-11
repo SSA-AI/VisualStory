@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from IPython.display import display, clear_output
+from typing import List
+
 
 class VisualizeStory:
     def __init__(self, images, texts):
