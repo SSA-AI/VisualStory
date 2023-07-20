@@ -330,14 +330,18 @@ class Trainer:
         self.clip_model = clip_model
         self.loss_obj = loss_obj
         self.device = device
-        self.writer = SummaryWriter()  # TensorBoard writer
+        self.writer = SummaryWriter("/Users/shahafasban/PycharmProjects/Training_log")  # TensorBoard writer
 
     def train(self, dataloader, classes, optimizer, num_epochs=10, subset_size=100):
         self.feature_extractor.train()
+        # Create directory if it does not exist
+        os.makedirs('training_results_dir', exist_ok=True)
+
         for epoch in tqdm(range(num_epochs)):
             # Create an iterator from the dataloader and use itertools.islice to only get a subset of it
             data_iter = iter(dataloader)
             for i, (images, labels) in enumerate(itertools.islice(data_iter, subset_size)):
+                print(f"Iteration: {i}")
                 images = images.to(self.device)
                 labels = labels.to(self.device)
 
@@ -363,6 +367,8 @@ class Trainer:
 
                 # Log the loss to TensorBoard
                 self.writer.add_scalar('Training Loss', loss.item(), epoch * subset_size + i)
+            # Save the model's weights after each epoch
+            torch.save(self.feature_extractor.state_dict(), f'training_results_dir/feature_extractor_epoch_{epoch}.pth')
 
         # Close the TensorBoard writer
         self.writer.close()
