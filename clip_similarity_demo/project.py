@@ -1,8 +1,10 @@
+import argparse
 import os
 import matplotlib
 import numpy as np
 import torch
 import torchvision
+import yaml
 from huggingface_hub.utils import tqdm
 from torchvision import models, transforms
 import torchvision.transforms as transforms
@@ -31,22 +33,19 @@ def main_skimage():
     # ** get model name from .yaml
     model, preprocess = ClipLoader(model_name="ViT-B/32").load()
 
-    # ** obtain from .yaml file
-    descriptions = {
-        "page": "a page of text about segmentation",
-        "chelsea": "a facial photo of a tabby cat",
-        "astronaut": "a portrait of an astronaut with the American flag",
-        "rocket": "a rocket standing on a launchpad",
-        "motorcycle_right": "a red motorcycle standing in a garage",
-        "camera": "a person looking at a camera on a tripod",
-        "horse": "a black-and-white silhouette of a horse",
-        "coffee": "a cup of coffee on a saucer"
-    }
+    # get descriptions
+    parser = argparse.ArgumentParser(description='Training script')
+    parser.add_argument('--config', type=str, default='config.yaml', help='Path to the config file')
+    args = parser.parse_args()
+    with open(args.config, 'r') as file:
+        config = yaml.safe_load(file)
+    descriptions = config["descriptions"]
+
     data_handler = DataHandlerSKImage(preprocess=preprocess)
     images, texts, original_images, filename_list = data_handler.get_sample(descriptions=descriptions)
 
     ## visualize sample:
-    # data_handler.visualize_sample(original_images, texts, filename_list)
+    data_handler.visualize_sample(original_images, texts, filename_list)
 
     # visualize text-image similarity:
     VisualizeSimilarityMatrix(clip_model=model).skimage(images=images, texts=texts,
@@ -101,8 +100,8 @@ def load_trained_feature_extractor_main(epoch_num=None):
 
 if __name__ == "__main__":
 
-    main_cifar10()
-    print("Done comparing CIFAR10")
+    # main_cifar10()
+    # print("Done comparing CIFAR10")
 
     # main_skimage()
     # print("Done comparing skimage")

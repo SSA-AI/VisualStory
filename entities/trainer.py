@@ -8,7 +8,7 @@ from torch import nn
 from huggingface_hub.utils import tqdm
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
-from entities.data_handlers import DataHandlerCifar10
+from entities.data_handlers import DataHandlerCifar10, DataHandlerSKImage
 from entities.model_loaders import ResNet50FeatureExtractor, ClipLoader
 
 
@@ -28,11 +28,14 @@ class Trainer:
         self.gamma = gamma
         self.step = step
 
-    def train(self, dataloader, classes, optimizer, num_epochs=10, subset_size=100):
+    def train(self, dataloader, val_dataloader, classes, optimizer, num_epochs=10, subset_size=100):
+
+        # training phase:
+        #################
         self.feature_extractor.train()
 
         # Initialize the learning rate scheduler
-        scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
+        scheduler = StepLR(optimizer, step_size=self.step, gamma=self.gamma)
 
         for epoch in tqdm(range(num_epochs)):
             # Create an iterator from the dataloader and use itertools.islice to only get a subset of it
@@ -64,6 +67,41 @@ class Trainer:
 
                 # Log the loss to TensorBoard
                 self.writer.add_scalar('Training Loss', loss.item(), epoch * subset_size + i)
+
+            # validation phase:
+
+            # Validation phase every 5 epochs
+            mod = 1
+            if epoch % mod == 0:
+                    self.feature_extractor.eval()  # Set the model to evaluation mode
+                    with torch.no_grad():  # Disable gradient computation
+                        val_loss_total = 0
+                        val_steps = 0
+                        for i, (images, labels) in enumerate(val_dataloader):
+                            images = images.to(self.device)
+                            labels = labels.to(self.device)
+
+                            # Convert numerical labels to text labels
+                            text_labels = [classes[label] for label in labels]
+
+                            # Generate image features using feature extractor
+                            image_features = self.feature_extractor(images)
+
+                            # Generate label features using CLIP
+                            label_features = self.clip_model.encode_text(clip.tokenize(text_labels))
+
+                            # Compute loss
+                            val_loss = self.loss_obj.get_loss()(image_features, label_features)
+                            val_loss_total += val_loss.item()
+                            val_steps += 1
+
+                        # Compute average validation loss for this epoch
+                        avg_val_loss = val_loss_total / val_steps
+
+                        # Log the average validation loss to TensorBoard
+                        self.writer.add_scalar('Validation Loss', val_loss.item(), epoch)
+
+                    self.feature_extractor.train()  # Set the model back to training mode
 
             # Save the model's weights after each epoch
             torch.save(self.feature_extractor.state_dict(), f'{self.training_results_dir}/feature_extractor_epoch_{epoch}.pth')
@@ -116,6 +154,7 @@ def train_main():
     print(f"Loading CLIP model: {clip_model_str}...")
     clip_loader, preprocess = ClipLoader(clip_model_str).load()
 
+
     # Create DataHandler instance and download data
     data_dir = config['data_dir']
     data_handler = DataHandlerCifar10(data_dir=data_dir, batch_size=config['batch_size'], val_split=config['val_split'])
@@ -124,20 +163,21 @@ def train_main():
     # Split the dataset into training and validation sets
     train_loader, val_loader, classes = data_handler.split_train_val()
 
+
     # Initialize loss object
     loss_obj = LossObj('mse')
 
     # Initialize trainer
     trainer = Trainer(feature_extractor, clip_loader, loss_obj, device,
                       results_dir=config["results_dir"],
-                      gamma=config["gamma"],
-                      step=config["step"])
+                      gamma=config["schedualer_gamma"],
+                      step=config["schedualer_step"])
 
     # Initialize optimizer
     optimizer = torch.optim.Adam(feature_extractor.parameters(), lr=config['lr'])
 
     # Train
-    trainer.train(train_loader, classes, optimizer, num_epochs=config['num_epochs'])
+    trainer.train(train_loader, train_loader, classes, optimizer, num_epochs=config['num_epochs'])
 
 
 if __name__ == "__main__":
