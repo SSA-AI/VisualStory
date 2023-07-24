@@ -2,6 +2,7 @@ import os
 import urllib.request
 import zipfile
 
+
 def download_coco_dataset(target_dir='data/coco'):
     # URLs for the zip files
     image_url = 'http://images.cocodataset.org/zips/train2014.zip'
@@ -43,6 +44,7 @@ def download_coco_dataset(target_dir='data/coco'):
         with zipfile.ZipFile(annotation_zip_path, 'r') as zip_ref:
             zip_ref.extractall(target_dir)
         print('Annotation extraction complete!')
+
 
 if __name__ == "__main__":
     download_coco_dataset()
