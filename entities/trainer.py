@@ -128,26 +128,39 @@ def parse_config(config_file):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
 
-        # add config parameters to tensorboard log
-        # Initialize TensorBoard writer
-        results_dir = config["results_dir"]
-        os.makedirs(results_dir, exist_ok=True)
-        log_output_dir = os.path.join(results_dir, "tensorboard_log")
-        os.makedirs(log_output_dir, exist_ok=True)
-        writer = SummaryWriter(log_output_dir)
+    with open(config_file, 'r') as file:
+        config_content = file.read()
 
-        # Load the config file
-        with open(config_file, 'r') as file:
-            config_text = yaml.safe_load(file)
+    results_dir = config["results_dir"]
+    os.makedirs(results_dir, exist_ok=True)
+    log_output_dir = os.path.join(results_dir, "tensorboard_log")
+    os.makedirs(log_output_dir, exist_ok=True)
+    writer = SummaryWriter(log_output_dir)
 
-        # Convert the config dictionary to a string
-        config_str = yaml.dump(config_text)
+    # Log the content of the config file
+    writer.add_text('Config', config_content)
+    writer.close()
 
-        # Add the config string to TensorBoard
-        writer.add_text('Config', config_str, 0)
-
-        # Close the TensorBoard writer
-        writer.close()
+    # # add config parameters to tensorboard log
+        # # Initialize TensorBoard writer
+        # results_dir = config["results_dir"]
+        # os.makedirs(results_dir, exist_ok=True)
+        # log_output_dir = os.path.join(results_dir, "tensorboard_log")
+        # os.makedirs(log_output_dir, exist_ok=True)
+        # writer = SummaryWriter(log_output_dir)
+        #
+        # # Load the config file
+        # with open(config_file, 'r') as file:
+        #     config_text = yaml.safe_load(file)
+        #
+        # # Convert the config dictionary to a string
+        # config_str = yaml.dump(config_text)
+        #
+        # # Add the config string to TensorBoard
+        # writer.add_text('Config', config_str, 0)
+        #
+        # # Close the TensorBoard writer
+        # writer.close()
 
     return config
 
