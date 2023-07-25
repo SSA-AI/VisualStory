@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 
 from entities.data_handlers import DataHandlerSKImage, DataHandlerCifar10, PreProcessSet
-from entities.model_loaders import ClipLoader, ResNet50FeatureExtractor, LoadTrainedModel
+from entities.model_loaders import ClipLoader, ResNetXFeatureExtractor, LoadTrainedModel
 from entities.trainer import train_main
 from entities.visualization import VisualizeSimilarityMatrix
 
@@ -80,28 +80,51 @@ def main_cifar10(feature_extractor=None):
                                                                                              images_dict=images_dict)
 
 
-def load_trained_feature_extractor_main(epoch_num=None):
-    # Define device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Initialize feature extractor (ResNet50FeatureExtractor from previous example)
-    feature_extractor = ResNet50FeatureExtractor('resnet50', 512).to(device)
+def parse_config(config_file):
+    with open(config_file, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
 
 
-    # Initialize LoadTrainedModel
-    training_results_dir = os.path.join("/Users/shahafasban/PycharmProjects/Training_log", "training_results")
-    loader = LoadTrainedModel(feature_extractor, training_results_dir)
+def get_args():
+    parser = argparse.ArgumentParser(description='Training script')
+    parser.add_argument('--config', type=str, default='config.yaml', help='Path to the config file')
+    return parser.parse_args()
 
-    # Load the latest model weights
-    loader.load_weights(epoch_num=1)
 
-    return feature_extractor
+def load_trained_feature_extractor_main(model_name, num_features, epoch_num=None, weights_dir=None):
+
+    if weights_dir == None:
+        raise ValueError("Trained model directory cannot be found. Please add a valid directory path.")
+    else:
+        # Define device
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        # Initialize feature extractor (ResNet50FeatureExtractor from previous example)
+        feature_extractor = ResNetXFeatureExtractor(model_name, num_features).to(device)
+
+
+        # Initialize LoadTrainedModel
+        loader = LoadTrainedModel(feature_extractor, weights_dir)
+
+        # Load the latest model weights
+        loader.load_weights(epoch_num=epoch_num)
+
+        return feature_extractor
 
 
 if __name__ == "__main__":
 
-    # main_cifar10()
-    # print("Done comparing CIFAR10")
+    args = get_args()
+    config = parse_config(args.config)
+    weights_dir = os.path.join(config["results_dir"], "training_results")
+    num_features = config["num_features"]
+    model_name = config["model_name_str"]
+    read_epoch_num = config["read_epoch_num"]
+
+    main_cifar10()
+    print("Done comparing CIFAR10")
 
     # main_skimage()
     # print("Done comparing skimage")
@@ -110,7 +133,9 @@ if __name__ == "__main__":
     # train_main()
 
     # loading trained model:
-    # trained_feature_extractor = load_trained_feature_extractor_main(epoch_num=0)
+
+    # trained_feature_extractor = load_trained_feature_extractor_main(model_name=model_name, num_features=num_features,
+    #                                                                 epoch_num=read_epoch_num, weights_dir=weights_dir)
     # main_cifar10(feature_extractor=trained_feature_extractor)
 
     print("Done :)")

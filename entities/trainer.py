@@ -9,7 +9,7 @@ from huggingface_hub.utils import tqdm
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 from entities.data_handlers import DataHandlerCifar10, DataHandlerSKImage
-from entities.model_loaders import ResNet50FeatureExtractor, ClipLoader
+from entities.model_loaders import ResNetXFeatureExtractor, ClipLoader
 
 
 class Trainer:
@@ -141,27 +141,6 @@ def parse_config(config_file):
     writer.add_text('Config', config_content)
     writer.close()
 
-    # # add config parameters to tensorboard log
-        # # Initialize TensorBoard writer
-        # results_dir = config["results_dir"]
-        # os.makedirs(results_dir, exist_ok=True)
-        # log_output_dir = os.path.join(results_dir, "tensorboard_log")
-        # os.makedirs(log_output_dir, exist_ok=True)
-        # writer = SummaryWriter(log_output_dir)
-        #
-        # # Load the config file
-        # with open(config_file, 'r') as file:
-        #     config_text = yaml.safe_load(file)
-        #
-        # # Convert the config dictionary to a string
-        # config_str = yaml.dump(config_text)
-        #
-        # # Add the config string to TensorBoard
-        # writer.add_text('Config', config_str, 0)
-        #
-        # # Close the TensorBoard writer
-        # writer.close()
-
     return config
 
 
@@ -179,10 +158,10 @@ def train_main():
     # Define device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Initialize feature extractor (ResNet50FeatureExtractor from previous example)
     model_name_str = config['model_name_str']
     print(f"Loading feature extractor: {model_name_str}...")
-    feature_extractor = ResNet50FeatureExtractor(model_name_str, 512).to(device)
+    num_features = config["num_features"]
+    feature_extractor = ResNetXFeatureExtractor(model_name_str, num_features).to(device)
 
     # Initialize ClipLoader
     clip_model_str = config['clip_model_str']

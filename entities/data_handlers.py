@@ -29,7 +29,8 @@ class DataHandlerCifar10(DataHandler):
     def __init__(self, data_dir='./data', batch_size=64, val_split=0.2):
         self.data_dir = data_dir
         self.classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.4914, 0.4822, 0.4465),
+                                                                                         (0.2023, 0.1994, 0.2010))])
         self.trainset = None
         self.batch_size = batch_size
         self.val_split = val_split
