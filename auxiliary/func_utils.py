@@ -1,7 +1,7 @@
 import yaml
 import torch
 import argparse
-from entities.trainer import LossObj, Trainer
+from main_train import LossObj, Trainer
 from entities.visualization import VisualizeSimilarityMatrix
 from entities.data_handlers import DataHandlerSKImage, DataHandlerCifar10, PreProcessSet
 from entities.model_loaders import ClipLoader, LoadTrainedModel, ResNetXFeatureExtractor
