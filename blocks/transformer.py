@@ -1,6 +1,7 @@
 import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
+
 class TransformerModel:
     def __init__(self, device="cuda"):
         self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
