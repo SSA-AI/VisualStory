@@ -4,12 +4,6 @@ from auxiliary.func_utils \
     main_cifar10, main_skimage, \
     load_trained_feature_extractor_main
 
-"""
-In this script I implement the interaction with CLIP functions using CIFAR10 as a first stage before 
-implementations using a different feature extractor.
-
-This is the most recent implementation in this folder.
-"""
 
 if __name__ == "__main__":
 
