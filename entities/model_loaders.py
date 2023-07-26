@@ -1,8 +1,7 @@
 import os
-
 import clip
-import numpy as np
 import torch
+import numpy as np
 import torchvision
 from torch import nn
 
@@ -43,44 +42,9 @@ class ResNetXFeatureExtractor(nn.Module):
         x = self.features(x)
         x = self.conv(x)
         x = self.relu(x)
-        x = x.view(x.size(0), -1)  # Flatten the tensor
+        x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
-
-
-# class ResNetXFeatureExtractor(nn.Module):
-#     def __init__(self, model_name, num_features):
-#         super(ResNetXFeatureExtractor, self).__init__()
-#         model = torchvision.models.__dict__[model_name](pretrained=True)
-#         self.features = nn.Sequential(*list(model.children())[:-1])
-#         self.fc1 = nn.Linear(model.fc.in_features, 128)  # First fully connected layer
-#         self.relu = nn.ReLU()  # Activation function
-#         self.fc2 = nn.Linear(128, num_features)  # Second fully connected layer
-#         self._trained_fc_layer = False
-#
-#     def forward(self, x):
-#         x = self.features(x)
-#         x = x.view(x.size(0), -1)
-#         x = self.fc1(x)
-#         x = self.relu(x)
-#         x = self.fc2(x)
-#         return x
-#
-
-
-# class ResNet50FeatureExtractor(nn.Module):
-#     def __init__(self, model_name, num_features):
-#         super(ResNet50FeatureExtractor, self).__init__()
-#         model = torchvision.models.__dict__[model_name](pretrained=True)
-#         self.features = nn.Sequential(*list(model.children())[:-1])
-#         self.fc = nn.Linear(model.fc.in_features, num_features)
-#         self._trained_fc_layer = False
-#
-#     def forward(self, x):
-#         x = self.features(x)
-#         x = x.view(x.size(0), -1)
-#         x = self.fc(x)
-#         return x
 
 
 class LoadTrainedModel:
