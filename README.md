@@ -42,7 +42,11 @@ For example, to choose the "skimage" model, your configuration file would includ
 choose_main: "skimage"
 ```
 
-This will instruct the `main_demo.py` script to use the "skimage" model when calculating the similarity scores.
+This will instruct the `main_demo.py` script to use the "skimage" model when calculating the similarity scores, resulting in the following output:
+
+![Screenshot 2023-07-28 at 0 20 39](https://github.com/SSA-AI/VisualStoryTelling/assets/139221319/3abfd89c-1c8e-47f9-8efe-6e810ac78ae4)
+
+
 
 By following these steps, you can easily train the model and demonstrate the similarity tests using your own settings and parameters. Enjoy exploring the fascinating intersection of computer vision and natural language processing!
 
@@ -51,6 +55,7 @@ By following these steps, you can easily train the model and demonstrate the sim
 2. **Training**: Train the ResNet model on pairs of images and their corresponding text embeddings from the CIFAR10 dataset. The objective of the training is to improve the cosine similarity between the image embeddings and the text embeddings.
 
 3. **Similarity Matrix**: Finally, calculate the similarity matrix. This matrix provides a comprehensive view of how each class in the CIFAR10 dataset correlates with every other class based on the trained ResNet model.
+
 
 ## Usage
 
